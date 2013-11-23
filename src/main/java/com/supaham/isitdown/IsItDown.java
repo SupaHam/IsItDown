@@ -93,7 +93,6 @@ public class IsItDown extends JavaPlugin {
         if (!this.getConfig().isSet("interval")) {
             this.getConfig().set("interval", 60);
         }
-        // return this.getConfig().getInt("interval");
-        return 0;
+        return this.getConfig().getInt("interval");
     }
 }
