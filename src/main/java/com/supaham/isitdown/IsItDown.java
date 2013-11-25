@@ -7,57 +7,78 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
+import org.json.simple.JSONArray;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 public class IsItDown extends JavaPlugin {
 
-    private static String PREFIX = ChatColor.GRAY + "[" + ChatColor.GOLD + "MCStatus"
+    public static String PREFIX = ChatColor.GRAY + "[" + ChatColor.GOLD + "MCStatus"
             + ChatColor.GRAY + "] " + ChatColor.RESET;
-    private boolean lastCheckWasDown = false;
+
 
     @Override
     public void onEnable() {
 
         this.saveDefaultConfig();
-        int interval = getSchedulerInterval() * 20;
-        new BukkitRunnable() {
+        new TestServices(this);
+    }
 
-            public void run() {
+    public Map<String, String> testServices() {
 
-                URL url;
-                try {
-                    url = new URL("https://status.mojang.com/");
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                    conn.setConnectTimeout(1000);
-                    conn.setRequestMethod("GET");
-                    conn.setReadTimeout(1000);
-                    InputStream is = conn.getInputStream();
-                    if (is == null) {
-                        return;
-                    }
-                    BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                    String output = br.readLine();
-                    if (!output.equalsIgnoreCase("OK")) {
-                        broadcast(PREFIX
-                                + "Servers are down! Please do not log out until you are notified the servers are up.");
-                        lastCheckWasDown = true;
-                    } else if (lastCheckWasDown) {
-                        broadcast(PREFIX + ChatColor.GREEN + "Servers are now up!");
-                        lastCheckWasDown = false;
-                    }
-
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        URL url;
+        try {
+            url = new URL("https://status.mojang.com/check");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setConnectTimeout(1000);
+            conn.setRequestMethod("GET");
+            conn.setReadTimeout(1000);
+            InputStream is = conn.getInputStream();
+            if (is == null) {
+                return Collections.emptyMap();
             }
-        }.runTaskTimer(this, interval, interval);
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            JSONParser parser = new JSONParser();
+            try {
+                JSONArray array = (JSONArray) parser.parse(br.readLine());
+                Iterator<?> it = array.iterator();
+                Map<String, String> services = new HashMap<>();
+                while (it.hasNext()) {
+
+                    Map<?, ?> json = (Map<?, ?>) parser.parse(it.next().toString());
+                    Iterator<?> it2 = json.entrySet().iterator();
+
+                    while (it2.hasNext()) {
+                        Map.Entry<?, ?> entry = (Entry<?, ?>) it2.next();
+                        String key = entry.getKey().toString();
+                        String value = entry.getValue().toString();
+                        services.put(key, value);
+                    }
+                }
+                return services;
+            } catch (ParseException e) {
+                getLogger().severe(
+                        "Error occured while parsing input from URL: " + e.getMessage());
+                e.printStackTrace();
+                return null;
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**
@@ -93,6 +114,7 @@ public class IsItDown extends JavaPlugin {
         if (!this.getConfig().isSet("interval")) {
             this.getConfig().set("interval", 60);
         }
-        return this.getConfig().getInt("interval");
+//        return this.getConfig().getInt("interval");
+        return 2;
     }
 }
