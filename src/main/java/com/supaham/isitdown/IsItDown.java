@@ -111,10 +111,10 @@ public class IsItDown extends JavaPlugin {
      */
     public int getSchedulerInterval() {
 
+        // We don't want to only get a default value, but to add it to the config if it doesn't exist.
         if (!this.getConfig().isSet("interval")) {
             this.getConfig().set("interval", 60);
         }
-//        return this.getConfig().getInt("interval");
-        return 2;
+        return this.getConfig().getInt("interval");
     }
 }
