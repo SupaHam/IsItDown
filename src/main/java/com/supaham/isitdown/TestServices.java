@@ -24,61 +24,64 @@ public class TestServices implements Runnable {
         downServices = new ArrayList<>();
 
         int interval = plugin.getSchedulerInterval() * 20;
-        plugin.getServer().getScheduler().runTaskTimer(plugin, this, interval, interval);
+        plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, this, interval, interval);
     }
 
     @Override
     public void run() {
 
-        Map<String, String> result = plugin.testServices();
-        if (result != null) {
-            String session = result.get(SESSION_SERVER);
-            String account = result.get(ACCOUNT);
+        // Retrieves information from mojang asynchronously.
+        final Map<String, String> result = plugin.testServices();
 
+        // Access the Bukkit API synchronously.
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (result != null) {
+                    String session = result.get(SESSION_SERVER);
+                    String account = result.get(ACCOUNT);
 
-            boolean recentlyDown = false;
-            boolean recentlyUp = false;
+                    boolean recentlyDown = false;
+                    boolean recentlyUp = false;
 
-            if (!session.equals("green")) {
-                plugin.broadcast(IsItDown.PREFIX + ChatColor.RED
-                        + "Minecraft sessions service is down!");
-                if (!isRed(session)) {
-                    recentlyDown = true;
-                    addRedService(session);
+                    if (!session.equals("green")) {
+                        plugin.broadcast(IsItDown.PREFIX + ChatColor.RED + "Minecraft sessions service is down!");
+                        if (!isRed(session)) {
+                            recentlyDown = true;
+                            addRedService(session);
+                        }
+                    } else if (isRed(session)) {
+                        removeRedService(session);
+                        recentlyUp = true;
+                    }
+
+                    if (!account.equals("green")) {
+                        plugin.broadcast(IsItDown.PREFIX + "Mojang's account service is down!");
+                        if (!isRed(account)) {
+                            recentlyDown = true;
+                            addRedService(account);
+                        }
+                    } else if (isRed(account)) {
+                        removeRedService(account);
+                        recentlyUp = true;
+                    }
+
+                    if (recentlyDown) {
+                        plugin.broadcast(IsItDown.PREFIX + ChatColor.RED + " Please do not close Minecraft or log out" +
+                                " until you are notified the service(s) are up.");
+                    } else if (recentlyUp) {
+                        plugin.broadcast(IsItDown.PREFIX + ChatColor.GREEN + "Hooray! Minecraft services are all " +
+                                "green.");
+                        plugin.broadcast(IsItDown.PREFIX + ChatColor.GREEN + "You may now close Minecraft.");
+                    }
                 }
-            } else if (isRed(session)) {
-                removeRedService(session);
-                recentlyUp = true;
             }
-
-            if (!account.equals("green")) {
-                plugin.broadcast(IsItDown.PREFIX + "Mojang's account service is down!");
-                if (!isRed(account)) {
-                    recentlyDown = true;
-                    addRedService(account);
-                }
-            } else if (isRed(account)) {
-                removeRedService(account);
-                recentlyUp = true;
-            }
-
-            if (recentlyDown) {
-                plugin.broadcast(IsItDown.PREFIX
-                        + ChatColor.RED
-                        + " Please do not close Minecraft or log out until you are notified the service(s) are up.");
-            } else if (recentlyUp) {
-
-                plugin.broadcast(IsItDown.PREFIX + ChatColor.GREEN
-                        + "Hooray! Minecraft services are all green.");
-                plugin.broadcast(IsItDown.PREFIX + ChatColor.GREEN
-                        + "You may now close Minecraft.");
-            }
-        }
+        }.runTask(plugin);
     }
 
     /**
      * Checks if the {@code serviceName} is red (Down).
-     * 
+     *
      * @param serviceName name of the service to check
      * @return true if serviceName is on the list of red servers
      */
