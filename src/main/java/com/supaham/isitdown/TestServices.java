@@ -13,6 +13,10 @@ public class TestServices implements Runnable {
 
     public static final String SESSION_SERVER = "sessionserver.mojang.com";
     public static final String ACCOUNT = "account.mojang.com";
+    public static final String WEBSITE = "minecraft.net";
+    public static final String LOGIN = "login.mojang.com";
+    public static final String AUTH = "auth.mojang.com";
+    public static final String SKINS = "skins.minecraft.net";
 
     public TestServices(IsItDown instance) {
 
@@ -31,11 +35,6 @@ public class TestServices implements Runnable {
             String session = result.get(SESSION_SERVER);
             String account = result.get(ACCOUNT);
 
-            // TODO use these later possibly
-            // String website = result.get("minecraft.net");
-            // String login = result.get("login.minecraft.net");
-            // String auth = result.get("auth.mojang.com");
-            // String skins = result.get("skins.minecraft.net");
 
             boolean recentlyDown = false;
             boolean recentlyUp = false;
