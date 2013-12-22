@@ -24,5 +24,7 @@
 xcuserdata
 *class
 
-# Update script used to easily update maven dependencies
-update.bat
+#idea
+/.idea
+/out
+*.iml
