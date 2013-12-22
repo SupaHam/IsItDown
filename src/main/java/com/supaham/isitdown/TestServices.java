@@ -1,10 +1,11 @@
 package com.supaham.isitdown;
 
+import org.bukkit.ChatColor;
+import org.bukkit.scheduler.BukkitRunnable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import org.bukkit.ChatColor;
 
 public class TestServices implements Runnable {
 
@@ -92,7 +93,7 @@ public class TestServices implements Runnable {
 
     /**
      * Adds the {@code serviceName} to the list of the red servers.
-     * 
+     *
      * @param serviceName name of the service to add
      */
     public void addRedService(String serviceName) {
@@ -104,7 +105,7 @@ public class TestServices implements Runnable {
 
     /**
      * Removes {@code serviceName} from the list of red (down) servers.
-     * 
+     *
      * @param serviceName name of the service to remove
      * @return true if {@code serviceName} was removed, otherwise false
      */

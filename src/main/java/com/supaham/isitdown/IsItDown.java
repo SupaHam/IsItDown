@@ -1,5 +1,13 @@
 package com.supaham.isitdown;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.json.simple.JSONArray;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,18 +21,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.json.simple.JSONArray;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
 public class IsItDown extends JavaPlugin {
 
-    public static String PREFIX = ChatColor.GRAY + "[" + ChatColor.GOLD + "MCStatus"
-            + ChatColor.GRAY + "] " + ChatColor.RESET;
+    public static String PREFIX = ChatColor.GRAY + "[" + ChatColor.GOLD + "MCStatus" + ChatColor.GRAY + "] " +
+            ChatColor.RESET;
 
 
     @Override
@@ -67,8 +67,7 @@ public class IsItDown extends JavaPlugin {
                 }
                 return services;
             } catch (ParseException e) {
-                getLogger().severe(
-                        "Error occured while parsing input from URL: " + e.getMessage());
+                getLogger().severe("Error occurred while parsing input from URL: " + e.getMessage());
                 e.printStackTrace();
                 return null;
             }
@@ -92,7 +91,7 @@ public class IsItDown extends JavaPlugin {
 
     /**
      * Broadcasts a message to all players and console.
-     * 
+     *
      * @param message message to broadcast
      */
     public void broadcast(String message) {
@@ -106,7 +105,7 @@ public class IsItDown extends JavaPlugin {
     /**
      * Gets the interval in seconds for the scheduler that broadcasts a message if the
      * server is down.
-     * 
+     *
      * @return interval in seconds
      */
     public int getSchedulerInterval() {
